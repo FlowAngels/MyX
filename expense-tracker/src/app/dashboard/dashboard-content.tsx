@@ -7,6 +7,14 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
 import type { Expense, Organization } from '@/lib/database.types'
+const StatusNeutralIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <circle cx="12" cy="12" r="9" />
+    <line x1="8" y1="15" x2="16" y2="15" />
+    <circle cx="9" cy="10" r="1" />
+    <circle cx="15" cy="10" r="1" />
+  </svg>
+)
 
 type Period = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
@@ -99,6 +107,22 @@ export default function DashboardContent() {
       end = new Date(d.getFullYear(), d.getMonth() + 1, 1)
     }
     return { startISO: start.toISOString(), endISO: end.toISOString() }
+  }
+
+  function nextHigherContextLabel(p: Period): string {
+    switch (p) {
+      case 'day':
+        return 'Week'
+      case 'week':
+        return 'Month'
+      case 'month':
+        return 'Quarter'
+      case 'quarter':
+        return 'Year'
+      case 'year':
+      default:
+        return 'All-time'
+    }
   }
 
   const currentMonthTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0)
@@ -195,12 +219,16 @@ export default function DashboardContent() {
             { title: 'Taxes (Y%)', value: null, help: 'Non-negotiable obligations' },
             { title: 'Owner Pay (Z%)', value: null, help: 'Your salary/drawings' },
           ].map((c, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
+            <Card key={i} className="p-3">
+              <CardHeader className="pb-1">
                 <CardTitle className="text-xs font-semibold tracking-wide text-center">{c.title.toUpperCase()}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
+                  <StatusNeutralIcon className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="mt-0.5 text-[11px] leading-4 text-gray-400">{nextHigherContextLabel(period)}: —</div>
               </CardContent>
             </Card>
           ))}
@@ -213,12 +241,24 @@ export default function DashboardContent() {
             { title: organization?.country === 'US' ? 'Sales Tax' : 'GST', value: null, help: 'Tax compliance' },
             { title: 'Taxes', value: null, help: 'Total tax obligations' },
           ].map((c, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
+            <Card key={i} className="p-3">
+              <CardHeader className="pb-1">
                 <CardTitle className="text-xs font-semibold tracking-wide text-center">{c.title.toUpperCase()}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-600">{c.value !== null ? c.title==='Current Expenses' ? c.value : formatCurrency(c.value as number) : '—'}</div>
+                {c.title === 'Operating Budget' ? (
+                  <div className="text-3xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xl font-bold text-gray-600">{c.value !== null ? c.title==='Current Expenses' ? c.value : formatCurrency(c.value as number) : '—'}</div>
+                      <StatusNeutralIcon className="w-4 h-4 text-gray-400" />
+                    </div>
+                    <div className="mt-0.5 text-[11px] leading-4 text-gray-400">
+                      {c.title === 'GST' || c.title === 'Taxes' || c.title === 'Sales Tax' ? 'Cycle: —' : `${nextHigherContextLabel(period)}: —`}
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           ))}
