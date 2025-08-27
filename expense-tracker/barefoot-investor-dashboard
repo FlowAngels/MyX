@@ -1,0 +1,141 @@
+MyX Personal Dashboard - UI Design Specifications
+Framework Foundation
+Implements Barefoot Investor principles: Income → allocate Investments first (10%), then Emergency Fund (20%), then Fun & Play (10%), with Living Expenses (60%) getting the remainder.
+6-Card Layout Structure
+Card Arrangement
+
+Top Row (4): INCOME, INVESTMENTS (10%), EMERGENCY FUND (20%), FUN & PLAY (10%)
+Bottom Row (2): LIVING EXPENSES (60%) (hero), CURRENT SPENDING
+Time Selector: Day | Week | Month | Quarter | Year (docked above bottom nav)
+Bottom Navigation: MyX | Reports | Setup
+
+Visual Hierarchy Rules
+Hero Card: LIVING EXPENSES
+
+Largest primary number (no secondary line)
+ALL CAPS, centered title
+Purpose: spending constraint (e.g., "You have $1,200 to spend on essentials")
+
+Standard Cards: All Others
+
+Primary number: current period value (large)
+Secondary text (below, smaller):
+
+Hierarchical context for 4 cards:
+
+Day → show Week underneath
+Week → show Month underneath
+Month → show Quarter underneath
+Quarter → show Year underneath
+Year → show All-time underneath
+
+
+
+
+Dual indicators: Color on number + status icon
+
+Time Context Logic
+Hierarchical Context (applies to 5 cards)
+
+INCOME, INVESTMENTS (10%), EMERGENCY FUND (20%), FUN & PLAY (10%), CURRENT SPENDING
+Secondary line shows the next-higher period total
+
+No Context (1 card)
+
+LIVING EXPENSES (hero): current available budget for essentials; no secondary line
+
+Dual Indicator System
+Color Coding (applies to the primary number)
+
+Green: allocation executed (money moved to proper accounts/investments)
+Grey: pending (allocation not executed yet)
+Red: overdue allocation (creates urgency)
+
+Status Indicators (heroicons)
+
+Level 5: CheckCircle (solid, green-600) - exceeding targets
+Level 4: FaceSmile (solid, green-500) - meeting targets
+Level 3: InformationCircle (amber-500) - acceptable progress
+Level 2: ExclamationTriangle (orange-500) - below target
+Level 1: XCircle (red-600) - significant issues
+
+Card Content
+INCOME
+
+Primary: current period income (salary, benefits, etc.)
+Secondary: hierarchical context
+
+INVESTMENTS (10%)
+
+Primary: current period allocation to wealth building
+Secondary: hierarchical context + total invested underneath
+Example: "$200" with "Month: $800" and "Total: $2,450"
+
+EMERGENCY FUND (20%)
+
+Primary: current period allocation
+Secondary: hierarchical context + progress toward goal underneath
+Example: "$400" with "Month: $1,600" and "$1,800 / $2,000 goal"
+
+FUN & PLAY (10%)
+
+Primary: current period guilt-free money
+Secondary: hierarchical context
+
+LIVING EXPENSES (Hero)
+
+Primary: available budget for essentials (rent, bills, groceries)
+Secondary: none
+
+CURRENT SPENDING
+
+Primary: total spending in current period
+Secondary: hierarchical context
+
+Mobile-First Layout
+
+6 cards: Top row of 4, bottom row of 2
+LIVING EXPENSES card takes same width as CURRENT SPENDING for visual balance
+ALL CAPS centered titles
+Sticky header (personal account name; + Add Expense on right)
+Time selector docked just above bottom nav
+
+Personal vs Business Differences
+Simplified Structure
+
+6 cards instead of 8 (no tax complexity)
+Focus on personal wealth building vs business profit
+Emergency Fund combines safety net + debt payments
+Fun & Play gives permission for lifestyle spending
+
+Different Psychology
+
+Investments = building personal wealth (not business profit extraction)
+Emergency Fund = financial security (not tax obligations)
+Living Expenses = household constraint (not business operations)
+More permission-based language ("Fun & Play" vs "Owner Pay")
+
+Implementation Plan (UI first)
+
+Phase 1 (Now)
+
+Style LIVING EXPENSES as hero (larger number, no secondary line)
+Add secondary lines with placeholder numbers for 5 cards
+Add neutral status icon placeholders (heroicons)
+Keep colors neutral initially
+
+
+Phase 2 (Personal Setup + Backend)
+
+Personal financial setup: emergency fund goals, investment targets
+Track personal allocations and transfers
+Drive colors and status from actual execution
+Replace placeholders with real calculations
+
+
+
+Time Period Behavior
+
+Day | Week | Month | Quarter | Year control period calculations
+Living Expenses always shows current available budget
+Percentages apply to whatever income period is selected (daily, weekly, monthly income)

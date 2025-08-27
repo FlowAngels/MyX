@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
 import type { Expense, Organization } from '@/lib/database.types'
+import PersonalDashboardContent from '@/app/personal/personal-dashboard-content'
 const StatusNeutralIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <circle cx="12" cy="12" r="9" />
@@ -156,6 +157,11 @@ export default function DashboardContent() {
         </div>
       </div>
     )
+  }
+
+  // Dev preview: if the active organization's name is "Personal", show the personal dashboard UI
+  if (organization?.name?.toLowerCase() === 'personal') {
+    return <PersonalDashboardContent />
   }
 
   function formatLastUpdateText(d: Date): string {
