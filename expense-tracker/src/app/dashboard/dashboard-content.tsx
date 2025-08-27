@@ -2,27 +2,28 @@
 
 import { useEffect, useState } from 'react'
 import { createClientComponentClient } from '@/lib/supabase-client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { Plus, DollarSign, Receipt, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
-// Note: Link already imported above
 import { formatCurrency } from '@/lib/utils'
 import type { Expense, Organization } from '@/lib/database.types'
-import { getCategoryName } from '@/lib/categories'
+
+type Period = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
 export default function DashboardContent() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
+  const [period, setPeriod] = useState<Period>('month')
   const supabase = createClientComponentClient()
+
+  // Derived label (no hook to avoid hook-order issues)
+  const periodLabel = period.charAt(0).toUpperCase() + period.slice(1)
+  const lastBankUpdate = new Date()
 
   useEffect(() => {
     loadDashboardData()
-  }, [])
+  }, [period])
 
   const loadDashboardData = async () => {
     try {
@@ -53,14 +54,13 @@ export default function DashboardContent() {
 
       // Get expenses for current month
       const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+      const { startISO, endISO } = getRangeForPeriod(now, period)
 
       const { data: expensesData } = await supabase
         .from('expenses')
         .select('*')
-        .gte('date', startOfMonth)
-        .lte('date', endOfMonth)
+        .gte('date', startISO)
+        .lte('date', endISO)
         .order('date', { ascending: false })
 
       if (expensesData) {
@@ -73,22 +73,36 @@ export default function DashboardContent() {
     }
   }
 
+  function getRangeForPeriod(base: Date, p: Period) {
+    const d = new Date(base)
+    let start: Date
+    let end: Date
+    if (p === 'day') {
+      start = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      end = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+    } else if (p === 'week') {
+      const day = d.getDay() || 7 // Sun=0 -> 7
+      start = new Date(d)
+      start.setDate(d.getDate() - day + 1) // Monday
+      start.setHours(0, 0, 0, 0)
+      end = new Date(start)
+      end.setDate(start.getDate() + 7)
+    } else if (p === 'quarter') {
+      const q = Math.floor(d.getMonth() / 3) // 0..3
+      start = new Date(d.getFullYear(), q * 3, 1)
+      end = new Date(d.getFullYear(), q * 3 + 3, 1)
+    } else if (p === 'year') {
+      start = new Date(d.getFullYear(), 0, 1)
+      end = new Date(d.getFullYear() + 1, 0, 1)
+    } else {
+      start = new Date(d.getFullYear(), d.getMonth(), 1)
+      end = new Date(d.getFullYear(), d.getMonth() + 1, 1)
+    }
+    return { startISO: start.toISOString(), endISO: end.toISOString() }
+  }
+
   const currentMonthTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0)
   const currentMonthTax = expenses.reduce((sum, expense) => sum + expense.tax_amount, 0)
-
-  // Group expenses by category for chart
-  const categoryData = expenses.reduce((acc, expense) => {
-    const category = getCategoryName(expense.category as any)
-    acc[category] = (acc[category] || 0) + expense.amount
-    return acc
-  }, {} as Record<string, number>)
-
-  const chartData = Object.entries(categoryData).map(([category, amount]) => ({
-    category,
-    amount
-  }))
-
-  const recentExpenses = expenses.slice(0, 5)
 
   if (loading) {
     return (
@@ -120,146 +134,98 @@ export default function DashboardContent() {
     )
   }
 
+  function formatLastUpdateText(d: Date): string {
+    const now = new Date()
+    if (d.toDateString() === now.toDateString()) {
+      const h = d.getHours() % 12 || 12
+      const m = d.getMinutes().toString().padStart(2, '0')
+      const ampm = d.getHours() >= 12 ? 'pm' : 'am'
+      return `Today ${h}:${m}${ampm}`
+    }
+    const msPerDay = 86400000
+    const diffDays = Math.floor((now.getTime() - d.getTime()) / msPerDay)
+    if (diffDays < 7) return d.toLocaleDateString(undefined, { weekday: 'short' })
+    if (diffDays < 14) return 'Last Week'
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    if (d.getFullYear() === prevMonth.getFullYear() && d.getMonth() === prevMonth.getMonth()) return 'Last Month'
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back{organization ? `, ${organization.name}` : ''}
-          </h1>
-          <p className="text-gray-600">Here's your expense overview for this month</p>
+      {/* Bank update placeholder just above toggle */}
+      <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 104 }}>
+        Update bank data: {formatLastUpdateText(lastBankUpdate)}
+      </div>
+      {/* Period Toggle - docked just above bottom nav */}
+      <div className="fixed left-1/2 -translate-x-1/2 z-40" style={{ bottom: 80 }}>
+        <div className="inline-flex rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
+          {(['day','week','month','quarter','year'] as Period[]).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`px-3 py-1 text-sm transition-colors ${p===period? 'bg-black text-white' : 'bg-white text-gray-600 hover:text-gray-900'}`}
+            >
+              {p.charAt(0).toUpperCase()+p.slice(1)}
+            </button>
+          ))}
         </div>
-        <Link href="/expenses/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Expense
-          </Button>
-        </Link>
+      </div>
+      {/* Sticky header with active MyBiz centered in 75% and Add Expense on right */}
+      <div className="sticky top-0 z-30 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
+        <div className="col-span-3 flex justify-center">
+          <h1 className="text-2xl font-bold text-gray-900 text-center truncate max-w-full">{organization?.name ?? 'MyX'}</h1>
+        </div>
+        <div className="flex justify-end">
+          <Link href="/expenses/new">
+            <Button>+ Add Expense</Button>
+          </Link>
+        </div>
+      </div>
+      {/* (Removed old bank placeholder) */}
+      {/* (Removed previous KPI cards) */}
+
+      {/* Profit First Dashboard */}
+      <div className="mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          {/* Top Row - Delighter Job */}
+          {[
+            { title: 'Revenue', value: null, help: 'Income coming in' },
+            { title: 'Profit (X%)', value: null, help: 'Pay yourself first for wealth' },
+            { title: 'Taxes (Y%)', value: null, help: 'Non-negotiable obligations' },
+            { title: 'Owner Pay (Z%)', value: null, help: 'Your salary/drawings' },
+          ].map((c, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold tracking-wide text-center">{c.title.toUpperCase()}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Bottom Row - Core Job */}
+          {[
+            { title: 'Operating Budget', value: null, help: 'Constrained remainder' },
+            { title: 'Current Expenses', value: expenses.length, help: 'Tracking actual spending' },
+            { title: organization?.country === 'US' ? 'Sales Tax' : 'GST', value: null, help: 'Tax compliance' },
+            { title: 'Taxes', value: null, help: 'Total tax obligations' },
+          ].map((c, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-semibold tracking-wide text-center">{c.title.toUpperCase()}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-600">{c.value !== null ? c.title==='Current Expenses' ? c.value : formatCurrency(c.value as number) : '—'}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(currentMonthTotal)}</div>
-            <p className="text-xs text-muted-foreground">
-              This month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tax Amount</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(currentMonthTax)}</div>
-            <p className="text-xs text-muted-foreground">
-              {organization?.country === 'US' ? 'Tax' : organization?.country === 'UK' ? 'VAT' : 'GST'}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expense Count</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{expenses.length}</div>
-            <p className="text-xs text-muted-foreground">
-              This month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts and Recent Expenses */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Expenses by Category Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Expenses by Category</CardTitle>
-            <CardDescription>Breakdown of your expenses this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                  <Bar dataKey="amount" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-500">
-                No expenses yet this month
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Expenses */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Expenses</CardTitle>
-            <CardDescription>Your latest expense entries</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {recentExpenses.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Merchant</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentExpenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell>
-                        {new Date(expense.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>{expense.merchant_name}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {getCategoryName(expense.category as any)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(expense.amount)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                No expenses yet
-              </div>
-            )}
-            {expenses.length > 5 && (
-              <div className="mt-4 text-center">
-                <Link href="/expenses">
-                  <Button variant="outline" size="sm">
-                    View all expenses
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* (Removed charts and recent expenses sections) */}
     </div>
   )
 }
