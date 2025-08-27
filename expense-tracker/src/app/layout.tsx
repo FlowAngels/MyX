@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import BottomNav from "@/components/ui/bottom-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ExpenseTracker - Simple Business Expense Tracking",
-  description: "The expense tracker for businesses too small for QuickBooks. Track expenses, calculate GST/tax, and export reports for your accountant.",
+  title: "MyX - Find your X-factor in financial management",
+  description: "The expense tracker for the non-accountant who gets things done: in work, play, life.",
 };
 
 export default function RootLayout({
@@ -26,9 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16`}
       >
         {children}
+        <BottomNav />
         <Toaster />
       </body>
     </html>

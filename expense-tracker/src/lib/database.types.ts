@@ -123,6 +123,29 @@ export interface Database {
           updated_at?: string
         }
       }
+      user_organizations: {
+        Row: {
+          id: string
+          user_id: string
+          org_id: string
+          role: 'owner' | 'user'
+          joined_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          org_id: string
+          role: 'owner' | 'user'
+          joined_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          org_id?: string
+          role?: 'owner' | 'user'
+          joined_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -143,3 +166,4 @@ export type Organization = Database['public']['Tables']['organizations']['Row']
 export type Expense = Database['public']['Tables']['expenses']['Row']
 export type Category = Database['public']['Tables']['categories']['Row']
 export type Subscription = Database['public']['Tables']['subscriptions']['Row']
+export type UserOrganization = Database['public']['Tables']['user_organizations']['Row']

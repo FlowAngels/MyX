@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Plus, DollarSign, Receipt, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
+// Note: Link already imported above
 import { formatCurrency } from '@/lib/utils'
 import type { Expense, Organization } from '@/lib/database.types'
 import { getCategoryName } from '@/lib/categories'
@@ -26,14 +27,29 @@ export default function DashboardContent() {
   const loadDashboardData = async () => {
     try {
       // Get organization
-      const { data: orgData } = await supabase
-        .from('organizations')
-        .select('*')
-        .single()
+      // Read active org from cookie; fall back to first membership
+      const activeOrgId = typeof document !== 'undefined'
+        ? (document.cookie.split('; ').find((c) => c.startsWith('active_org_id='))?.split('=')[1])
+        : undefined
 
-      if (orgData) {
-        setOrganization(orgData)
+      if (activeOrgId) {
+        const { data: orgById } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', activeOrgId)
+          .maybeSingle()
+        if (orgById) setOrganization(orgById)
+      } else {
+        const { data: firstOrg } = await supabase
+          .from('organizations')
+          .select('*')
+          .order('name')
+          .limit(1)
+          .maybeSingle()
+        if (firstOrg) setOrganization(firstOrg)
       }
+
+      // organization state is set above
 
       // Get expenses for current month
       const now = new Date()
@@ -84,6 +100,21 @@ export default function DashboardContent() {
               <div key={i} className="h-32 bg-gray-200 rounded"></div>
             ))}
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  // If no organization, show lightweight in-page callout linking to MyBiz create
+  if (!organization) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Welcome</h1>
+          <p className="text-gray-600">Create your new MyBiz here!</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-6 bg-white text-gray-700">
+          <p className="text-lg font-medium">Tap the MyBiz tab to create your first MyBiz.</p>
         </div>
       </div>
     )

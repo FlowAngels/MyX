@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import ClientCreateOrgModal from './client-create-org-modal'
 import { createServerComponentClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import DashboardContent from './dashboard-content'
@@ -17,6 +18,7 @@ export default async function DashboardPage() {
       <Suspense fallback={<div>Loading...</div>}>
         <DashboardContent />
       </Suspense>
+      <ClientCreateOrgModal />
     </div>
   )
 }
