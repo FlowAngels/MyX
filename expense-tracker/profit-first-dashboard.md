@@ -32,9 +32,13 @@ Implements Profit First: Revenue → allocate Profit first, then Taxes, then Own
 
 ## Time Context Logic
 
-### Hierarchical Context (applies to 5 cards)
-- REVENUE, PROFIT (X%), TAXES (Y%), OWNER PAY (Z%), CURRENT EXPENSES
+### Hierarchical Context (applies to 4 cards)
+- REVENUE, PROFIT (X%), TAXES (Y%), CURRENT EXPENSES
 - Secondary line shows the next-higher period total as above
+
+### Average vs Target Context (applies to 1 card)
+- OWNER PAY (Z%)
+- Secondary line shows "Avg: $XXX / $XXX" (actual vs configured target)
 
 ### Tax Cycle Context (applies to 2 cards)
 - GST
@@ -78,10 +82,15 @@ Note: Final status logic will compare allocation execution vs. targets (X/Y/Z). 
 - Primary: current period amount
 - Secondary: filing cycle to date
 
-### PROFIT (X%) / TAXES (Y%) / OWNER PAY (Z%)
+### PROFIT (X%) / TAXES (Y%)
 - Targets configured per‑org (later, via Setup)
 - Primary: current period value; color and status based on transfer execution vs intent (later)
 - Secondary: hierarchical context
+
+### OWNER PAY (Z%)
+- Targets configured per‑org (later, via Setup)
+- Primary: current period value; color and status based on transfer execution vs intent (later)
+- Secondary: "Avg: $XXX / $XXX" (running average vs configured target, adapts to selected time period)
 
 ## Mobile-First Layout
 - 8 cards in 2x4 grid
@@ -96,7 +105,8 @@ Note: Final status logic will compare allocation execution vs. targets (X/Y/Z). 
 ## Implementation Plan (UI first)
 - Phase 1 (Now)
   - Style OPERATING BUDGET as hero (larger number, no secondary line)
-  - Add secondary lines (placeholder numbers) for 5 hierarchical cards
+  - Add secondary lines (placeholder numbers) for 4 hierarchical cards
+  - Add secondary "Avg: — / —" placeholder for OWNER PAY
   - Add secondary “Filing cycle: —” placeholders for GST/TAXES
   - Add neutral status icon placeholders (heroicons)
   - Keep color as neutral for now; Grey pending text

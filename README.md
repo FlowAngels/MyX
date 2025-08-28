@@ -12,11 +12,13 @@ MyX transforms financial management from reactive record-keeping to proactive ca
 
 ## ✨ Key Features
 
-- **Multi-Entity Management**: Personal (MyX) + Business (MyBiz) expense tracking
-- **Profit First Integration**: Built-in allocation system for Revenue, Profit, Taxes, and Owner Pay
-- **Smart Dashboard**: 8-card layout with dual indicator system (color-coded numbers + smiley status)
-- **Receipt Processing**: AI-powered OCR for automatic expense capture
-- **GST/Tax Automation**: Automatic tax calculations for NZ, AU, UK, and US
+- **Dual Dashboard System**: Business (Profit First) + Personal (Barefoot Investor) financial management
+- **8-Card Executive Layout**: Automated allocations (top row) + Responsive management (bottom row)
+- **Multi-Entity Management**: Organization switching between personal and business contexts
+- **Smart Indicators**: Dual indicator system with status icons and trend tracking
+- **Period Flexibility**: Day/Week/Month/Quarter/Year time period selection
+- **Receipt Processing**: AI-powered OCR for automatic expense capture *(future)*
+- **GST/Tax Automation**: Automatic tax calculations for NZ, AU, UK, and US *(future)*
 - **Mobile-First Design**: Bottom navigation with context-aware switching
 
 ## 🛠 Tech Stack
@@ -24,18 +26,18 @@ MyX transforms financial management from reactive record-keeping to proactive ca
 - **Frontend**: Next.js 15.5.0 with App Router, TypeScript, Tailwind CSS
 - **UI Components**: shadcn/ui with Heroicons
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **Forms**: React Hook Form + Zod validation
-- **Charts**: Recharts for data visualization
-- **AI/OCR**: OpenAI Vision API for receipt processing
-- **Payments**: Stripe for subscriptions
+- **Forms**: React Hook Form + Zod validation *(future)*
+- **Charts**: Recharts for data visualization *(future)*
+- **AI/OCR**: OpenAI Vision API for receipt processing *(future)*
+- **Payments**: Stripe for subscriptions *(future)*
 
 ## 🏗 Current Architecture
 
 ### Database Schema
 - **Organizations**: Multi-org support for personal and business contexts
-- **Expenses**: Complete expense tracking with receipt storage
-- **Categories**: Pre-seeded tax-deductible categories
-- **Subscriptions**: Stripe integration for billing
+- **Expenses**: Complete expense tracking with receipt storage *(future)*
+- **Categories**: Pre-seeded tax-deductible categories *(future)*
+- **Subscriptions**: Stripe integration for billing *(future)*
 
 ### Security
 - Row Level Security (RLS) policies
@@ -44,23 +46,47 @@ MyX transforms financial management from reactive record-keeping to proactive ca
 
 ## 📊 Dashboard Design
 
-### 8-Card Layout System
-**Delighter Cards** (Profit First focus):
-- Revenue tracking with allocation indicators
-- Profit allocation and status
-- Tax reserves and calculations
-- Owner pay scheduling
+### Dual Dashboard System ✅ IMPLEMENTED
 
-**Core Cards** (Operations):
-- Operating budget vs. actual
-- Current month expenses
-- GST/tax status
-- Upcoming tax obligations
+#### **Business Dashboard (Profit First Philosophy)**
+**Top Row - Automated Allocations:**
+- **REVENUE** - Current period inflows with hierarchical context
+- **PROFIT (X%)** - Profit allocation with hierarchical context
+- **TAXES (Y%)** - Tax allocation with hierarchical context
+- **OWNER PAY (Z%)** - Owner compensation with average vs target format
 
-### Dual Indicator System
-- **Color-coded numbers**: Green (allocated), White/Grey (pending), Red (issues)
-- **Smiley status**: 5-level performance indicators (😢 to 😍)
-- **Context-aware**: Everything updates based on selected organization
+**Bottom Row - Responsive Management:**
+- **OPERATING BUDGET** (Hero) - Real-time spending constraint
+- **CURRENT EXPENSES** - Period expenses with hierarchical context
+- **GST** - GST obligations with tax cycle context
+- **TAXES** - Tax obligations with tax cycle context
+
+#### **Personal Dashboard (Barefoot Investor Philosophy)**
+**Top Row - Automated Allocations:**
+- **MONEY IN** - Current period income with hierarchical context
+- **PAY YOU FIRST (A%)** - Wealth building with hierarchical context
+- **KILL DEBT (B%)** - Debt payments with hierarchical context
+- **BIG BILLS (C%)** - Irregular expenses with average vs target format
+
+**Bottom Row - Responsive Management:**
+- **LIVING EXPENSES** (Hero) - Available spending budget
+- **FUN CASH (D%)** - Guilt-free spending with hierarchical context
+- **RAINY DAY (E%)** - Emergency fund with goal progress format
+- **BIG WINS** - Medium-term goals with goal progress format
+
+### Implemented Features ✅
+
+#### **Visual System**
+- **Hero Cards**: Larger display for constraint numbers (Operating Budget / Living Expenses)
+- **Status Icons**: 5-level Heroicon system (CheckCircle → XCircle)
+- **Trend Indicators**: Custom heroicon for flat trends, positioned above status
+- **Standardized Sizing**: All icons w-5 h-5 with consistent positioning
+
+#### **Context-Aware Behavior**
+- **Time Period Integration**: Day/Week/Month/Quarter/Year selector with responsive context
+- **Secondary Lines**: Hierarchical context, average vs target, goal progress formats
+- **Conditional Display**: Smart hiding of secondary lines on Day view for target comparison cards
+- **Organization Switching**: Dropdown UI with green checkmark for active selection
 
 ## 🚀 Getting Started
 
@@ -68,7 +94,7 @@ MyX transforms financial management from reactive record-keeping to proactive ca
 - Node.js 18+
 - npm or yarn
 - Supabase account
-- OpenAI API key (for receipt processing)
+- OpenAI API key (for future receipt processing)
 
 ### Installation
 
@@ -92,12 +118,12 @@ Fill in your environment variables:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `OPENAI_API_KEY`
+- `OPENAI_API_KEY` *(future)*
 
 4. **Database setup**
 ```bash
 # Run the schema setup in your Supabase project
-psql -f supabase-schema-fixed.sql
+psql -f enterprise-foundation.sql
 ```
 
 5. **Start development server**
@@ -107,35 +133,44 @@ npm run dev
 
 Visit `http://localhost:3000` to see your application.
 
-## 🎯 Current Status: Exploration Complete ✅
+## 🎯 Current Status: Phase 1 Complete ✅
 
-**Phase**: Ready for Implementation
+**Phase**: Dashboard UI Implementation Complete - Ready for Data Integration
 
-### ✅ Completed
-- Dashboard design exploration with executive-level indicators
-- Core vs. Delighter philosophy established
-- Multi-org architecture planning
-- Technical stack integration
-- UI/UX foundation with shadcn/ui
+### ✅ Phase 1 Completed
+- ✅ Dual dashboard system (Business + Personal) implemented
+- ✅ 8-card layout with Profit First + Barefoot Investor methodologies
+- ✅ Organization switching with dropdown UI
+- ✅ Heroicon integration with dual indicator system
+- ✅ Period toggles (Day/Week/Month/Quarter/Year) with responsive positioning
+- ✅ Context-aware secondary lines with conditional logic
+- ✅ Organization creation via API routes
 
-### 🎯 Next Priority Items
-1. Fix organization creation via API route with service role
-2. Implement organization setup flow after email confirmation
-3. Add multi-org foundation (user_organizations junction table)
-4. Create organization switching UI
-5. Implement the 8-card dashboard with dual indicator system
+### 🎯 Phase 2 Priorities (Data Integration)
+1. Connect dashboards to real expense data
+2. Implement expense entry functionality  
+3. Add financial framework setup (allocation percentages)
+4. Build calculation engine for dashboard metrics
+5. Implement receipt upload and processing
 
-### 🐛 Known Issues
-- Organization creation blocked by RLS policies
-- Email confirmation workflow needs org setup integration
-- Multi-org architecture gap in current schema
+### 🔮 Future Phases
+- **Phase 3**: Multi-user organization support
+- **Phase 4**: Bank integration, advanced reporting, automation features
 
-## 📦 Subscription Tiers
+## 📚 Documentation
+
+- **[Exploration Notes](expense-tracker/EXPLORATION_NOTES.md)** - Complete strategic context, decision history, and roadmap
+- **[Business Dashboard Specs](expense-tracker/profit-first-dashboard.md)** - Profit First implementation details
+- **[Personal Dashboard Specs](expense-tracker/barefoot-investor-dashboard)** - Barefoot Investor implementation details
+- **[Current Project Status](Current Project Status.md)** - Living status document and priorities
+- **[Original Requirements](First Prompt.md)** - Historical project vision and requirements
+
+## 📦 Subscription Tiers *(Future)*
 
 - **Free**: 20 expenses/month, basic features
 - **Pro ($9/month)**: Unlimited expenses, priority support, API access
 
-## 🌍 Tax Support
+## 🌍 Tax Support *(Future)*
 
 Automatic GST/tax calculations for:
 - **New Zealand**: 15% GST
@@ -147,15 +182,17 @@ Automatic GST/tax calculations for:
 
 ```
 MyX/
-├── Current Project Status.md    # Detailed project status and roadmap
+├── Current Project Status.md    # Living project status and priorities
 ├── First Prompt.md             # Original project requirements and vision
-├── smileys.png                 # Dashboard status indicator reference
 ├── expense-tracker/            # Main Next.js application
+│   ├── EXPLORATION_NOTES.md    # Complete strategic documentation
+│   ├── barefoot-investor-dashboard # Personal dashboard specifications
+│   ├── profit-first-dashboard.md   # Business dashboard specifications
 │   ├── src/
 │   │   ├── app/               # Next.js App Router pages
 │   │   ├── components/        # Reusable UI components
 │   │   └── lib/               # Utilities, database types, business logic
-│   ├── supabase-schema-fixed.sql
+│   ├── enterprise-foundation.sql
 │   └── package.json
 └── README.md                   # This file
 ```

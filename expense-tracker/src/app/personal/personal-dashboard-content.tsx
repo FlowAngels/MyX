@@ -17,6 +17,14 @@ const StatusNeutralIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const TrendFlatIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path d="M7 12h10" />
+    <path d="m15 9 3 3-3 3" />
+    <path d="m9 9-3 3 3 3" />
+  </svg>
+)
+
 export default function PersonalDashboardContent() {
   const [period, setPeriod] = useState<Period>('month')
   const supabase = createClientComponentClient()
@@ -95,11 +103,11 @@ export default function PersonalDashboardContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Bank update placeholder just above toggle */}
-      <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 104 }}>
+      <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 96 }}>
         Update bank data: {formatLastUpdateText(lastBankUpdate)}
       </div>
       {/* Period Toggle - docked just above bottom nav */}
-      <div className="fixed left-1/2 -translate-x-1/2 z-40" style={{ bottom: 80 }}>
+      <div className="fixed left-1/2 -translate-x-1/2 z-40" style={{ bottom: 72 }}>
         <div className="inline-flex rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           {(['day','week','month','quarter','year'] as Period[]).map((p) => (
             <button
@@ -128,49 +136,106 @@ export default function PersonalDashboardContent() {
       {/* Top row: 4 cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         {[
-          { title: 'Income' },
-          { title: 'Investments (10%)' },
-          { title: 'Emergency Fund (10%)' },
-          { title: 'Fun & Play (20%)' },
+          { title: 'MONEY IN' },
+          { title: 'PAY YOU FIRST (A%)' },
+          { title: 'KILL DEBT (B%)' },
+          { title: 'BIG BILLS (C%)' },
         ].map((c, i) => (
           <Card key={i} className="p-3">
             <CardHeader className="pb-1">
-              <CardTitle className="text-xs font-semibold tracking-wide text-center">{c.title.toUpperCase()}</CardTitle>
+              <CardTitle className="text-xs font-semibold tracking-wide text-center">{c.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="text-xl font-bold text-gray-600">—</div>
-                <StatusNeutralIcon className="w-4 h-4 text-gray-400" />
+                <div className="flex flex-col items-center gap-0.5 h-11">
+                  {(c.title === 'MONEY IN') && period !== 'day' ? (
+                    <TrendFlatIcon className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <div className="w-5 h-5" />
+                  )}
+                  <StatusNeutralIcon className="w-5 h-5 text-gray-400" />
+                </div>
               </div>
-              <div className="mt-0.5 text-[11px] leading-4 text-gray-400">{nextHigherContextLabel(period)}: —</div>
+              {!(c.title.startsWith('BIG BILLS') && period === 'day') && (
+                <div className="mt-0.5 text-[11px] leading-4 text-gray-400">
+                  {c.title.startsWith('BIG BILLS') ? 'Avg: — / —' : `${nextHigherContextLabel(period)}: —`}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Bottom row: 2 cards */}
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+      {/* Bottom row: 4 cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* LIVING EXPENSES (Hero) */}
         <Card className="p-3">
           <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-semibold tracking-wide text-center">{'LIVING EXPENSES'}</CardTitle>
+            <CardTitle className="text-xs font-semibold tracking-wide text-center">LIVING EXPENSES</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-gray-600">—</div>
+            <div className="flex items-center justify-between">
+              <div className="text-3xl font-bold text-gray-600">—</div>
+              <div className="flex flex-col items-center gap-0.5 h-11">
+                {period !== 'day' ? (
+                  <TrendFlatIcon className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <div className="w-5 h-5" />
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* CURRENT SPENDING */}
+        {/* FUN CASH */}
         <Card className="p-3">
           <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-semibold tracking-wide text-center">{'CURRENT SPENDING'}</CardTitle>
+            <CardTitle className="text-xs font-semibold tracking-wide text-center">FUN CASH (D%)</CardTitle>
           </CardHeader>
-        <CardContent>
+          <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-xl font-bold text-gray-600">—</div>
-              <StatusNeutralIcon className="w-4 h-4 text-gray-400" />
+              <div className="flex flex-col items-center gap-0.5 h-11">
+                <div className="w-5 h-5" />
+                <StatusNeutralIcon className="w-5 h-5 text-gray-400" />
+              </div>
             </div>
             <div className="mt-0.5 text-[11px] leading-4 text-gray-400">{nextHigherContextLabel(period)}: —</div>
+          </CardContent>
+        </Card>
+
+        {/* RAINY DAY */}
+        <Card className="p-3">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-semibold tracking-wide text-center">RAINY DAY (E%)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="text-xl font-bold text-gray-600">—</div>
+              <div className="flex flex-col items-center gap-0.5 h-11">
+                <div className="w-5 h-5" />
+                <StatusNeutralIcon className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+            <div className="mt-0.5 text-[11px] leading-4 text-gray-400">Goal: — / —</div>
+          </CardContent>
+        </Card>
+
+        {/* BIG WINS */}
+        <Card className="p-3">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-semibold tracking-wide text-center">BIG WINS</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="text-xl font-bold text-gray-600">—</div>
+              <div className="flex flex-col items-center gap-0.5 h-11">
+                <div className="w-5 h-5" />
+                <StatusNeutralIcon className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+            <div className="mt-0.5 text-[11px] leading-4 text-gray-400">Goal: — / —</div>
           </CardContent>
         </Card>
       </div>

@@ -17,6 +17,14 @@ const StatusNeutralIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const TrendFlatIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path d="M7 12h10" />
+    <path d="m15 9 3 3-3 3" />
+    <path d="m9 9-3 3 3 3" />
+  </svg>
+)
+
 type Period = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
 export default function DashboardContent() {
@@ -184,11 +192,11 @@ export default function DashboardContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Bank update placeholder just above toggle */}
-      <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 104 }}>
+      <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 96 }}>
         Update bank data: {formatLastUpdateText(lastBankUpdate)}
       </div>
       {/* Period Toggle - docked just above bottom nav */}
-      <div className="fixed left-1/2 -translate-x-1/2 z-40" style={{ bottom: 80 }}>
+      <div className="fixed left-1/2 -translate-x-1/2 z-40" style={{ bottom: 72 }}>
         <div className="inline-flex rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           {(['day','week','month','quarter','year'] as Period[]).map((p) => (
             <button
@@ -232,9 +240,20 @@ export default function DashboardContent() {
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div className="text-xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
-                  <StatusNeutralIcon className="w-4 h-4 text-gray-400" />
+                  <div className="flex flex-col items-center gap-0.5 h-11">
+                    {(c.title === 'Revenue') && period !== 'day' ? (
+                      <TrendFlatIcon className="w-5 h-5 text-gray-400" />
+                    ) : (
+                      <div className="w-5 h-5" />
+                    )}
+                    <StatusNeutralIcon className="w-5 h-5 text-gray-400" />
+                  </div>
                 </div>
-                <div className="mt-0.5 text-[11px] leading-4 text-gray-400">{nextHigherContextLabel(period)}: —</div>
+                {!(c.title === 'Owner Pay (Z%)' && period === 'day') && (
+                  <div className="mt-0.5 text-[11px] leading-4 text-gray-400">
+                    {c.title === 'Owner Pay (Z%)' ? 'Avg: — / —' : `${nextHigherContextLabel(period)}: —`}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -253,12 +272,28 @@ export default function DashboardContent() {
               </CardHeader>
               <CardContent>
                 {c.title === 'Operating Budget' ? (
-                  <div className="text-3xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-3xl font-bold text-gray-600">{c.value !== null ? formatCurrency(c.value as number) : '—'}</div>
+                    <div className="flex flex-col items-center gap-0.5 h-11">
+                      {period !== 'day' ? (
+                        <TrendFlatIcon className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <div className="w-5 h-5" />
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <div className="flex items-center justify-between">
                       <div className="text-xl font-bold text-gray-600">{c.value !== null ? c.title==='Current Expenses' ? c.value : formatCurrency(c.value as number) : '—'}</div>
-                      <StatusNeutralIcon className="w-4 h-4 text-gray-400" />
+                      <div className="flex flex-col items-center gap-0.5 h-11">
+                        {(c.title === 'Current Expenses') && period !== 'day' ? (
+                          <TrendFlatIcon className="w-5 h-5 text-gray-400" />
+                        ) : (
+                          <div className="w-5 h-5" />
+                        )}
+                        <StatusNeutralIcon className="w-5 h-5 text-gray-400" />
+                      </div>
                     </div>
                     <div className="mt-0.5 text-[11px] leading-4 text-gray-400">
                       {c.title === 'GST' || c.title === 'Taxes' || c.title === 'Sales Tax' ? 'Cycle: —' : `${nextHigherContextLabel(period)}: —`}

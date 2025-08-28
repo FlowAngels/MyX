@@ -150,7 +150,7 @@ export default function BottomNav() {
                       >
                         <span className="flex items-center gap-2">
                           {activeOrgId === o.id && (
-                            <CheckIcon className="w-4 h-4 text-blue-600" />
+                            <CheckIcon className="w-4 h-4 text-green-600" />
                           )}
                           <span>{o.name}</span>
                         </span>
