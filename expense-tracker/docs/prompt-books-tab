@@ -1,0 +1,43 @@
+# GOAL
+Add a **Books** tab to the existing bottom navigation, using the **`book-open`** Heroicon, and point it to the `/books` route (or the project’s equivalent). Do **not** create new screens or routes in this task.
+
+# GUARDRAILS (ANDON)
+- If file paths, icon imports, or route names differ from what’s assumed here, **STOP** and print the actual paths/usages you found; then proceed with those. 
+- **Do not** add dependencies. Use the existing Heroicons setup and current nav/routing patterns.
+- Make **no other UI changes** beyond adding the tab item.
+
+# DISCOVER (READ-ONLY)
+1) Locate the bottom nav component (e.g., `components/BottomNav.*`, `components/navigation/BottomNav.*`, or similar).
+2) Identify how nav items are structured (label, icon, route).
+3) Identify how icons are imported (solid/outline, import path).
+4) Identify the route/key used for each tab (string path, route name, or stack key).
+5) Check whether a `/books` route (or equivalent screen key) **already exists**.
+
+After discovery, print:
+- Bottom nav file path
+- Icon import pattern (which Heroicons variant/path)
+- Existing tabs & their route identifiers
+- Whether a Books route already exists (yes/no; if yes, its identifier)
+
+# IMPLEMENTATION (ADD TAB ONLY)
+- Add a new tab item:
+  - **Label:** `Books`
+  - **Icon:** Heroicons **`book-open`** (match existing size/variant/style)
+  - **Route identifier:** `/books` (or the router’s idiomatic equivalent)
+- Apply the same active/inactive styling as other tabs.
+- **Do not** create a new route or screen in this task.
+- If no Books route exists, still add the tab but ensure the onPress handler navigates to the intended identifier. Then **print a note** at the end: “Books route/screen not found; added tab points to `/books` (or ID) and will need a screen in a follow-up task.”
+
+# ACCEPTANCE CRITERIA
+- Bottom nav now shows a **Books** tab with the **book-open** icon.
+- The tab’s navigation target is wired to `/books` (or the project’s route key).
+- No new files or dependencies created.
+- MyX (home), Reports, and Setup continue to work unchanged.
+- Build passes.
+
+# COMMIT MESSAGE
+feat(nav): add Books tab (book-open) to bottom navigation
+
+- Adds Books item to bottom nav using existing Heroicons setup
+- Wires tab to `/books` (or project’s equivalent route key)
+- No new routes/screens added in this change

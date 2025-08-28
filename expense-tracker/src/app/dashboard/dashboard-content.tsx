@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
 import type { Expense, Organization } from '@/lib/database.types'
 import PersonalDashboardContent from '@/app/personal/personal-dashboard-content'
+import BasicDashboard from '@/components/myx/basic/BasicDashboard'
 const StatusNeutralIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <circle cx="12" cy="12" r="9" />
@@ -170,6 +171,11 @@ export default function DashboardContent() {
   // Dev preview: if the active organization's name is "Personal", show the personal dashboard UI
   if (organization?.name?.toLowerCase() === 'personal') {
     return <PersonalDashboardContent />
+  }
+
+  // Dev preview: if the active organization's name is "Basic", show the basic dashboard UI
+  if (organization?.name?.toLowerCase() === 'basic') {
+    return <BasicDashboard orgName={organization.name} />
   }
 
   function formatLastUpdateText(d: Date): string {
