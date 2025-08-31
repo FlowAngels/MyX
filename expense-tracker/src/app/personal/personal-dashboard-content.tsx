@@ -101,7 +101,7 @@ export default function PersonalDashboardContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 h-screen overflow-hidden flex flex-col">
       {/* Bank update placeholder just above toggle */}
       <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 96 }}>
         Update bank data: {formatLastUpdateText(lastBankUpdate)}
@@ -122,7 +122,7 @@ export default function PersonalDashboardContent() {
       </div>
 
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
+      <div className="flex-shrink-0 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
         <div className="col-span-3 flex justify-center">
           <h1 className="text-2xl font-bold text-gray-900 text-center truncate max-w-full">{title}</h1>
         </div>
@@ -133,8 +133,10 @@ export default function PersonalDashboardContent() {
         </div>
       </div>
 
-      {/* Top row: 4 cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      {/* Content area that fits in remaining viewport */}
+      <div className="flex-1 flex flex-col min-h-0 pb-32">
+        {/* Top row: 4 cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         {[
           { title: 'MONEY IN' },
           { title: 'PAY YOU FIRST (A%)' },
@@ -238,6 +240,7 @@ export default function PersonalDashboardContent() {
             <div className="mt-0.5 text-[11px] leading-4 text-gray-400">Goal: — / —</div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   )

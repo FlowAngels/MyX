@@ -144,14 +144,14 @@ export default function BottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center min-w-0 flex-1 px-2 py-1 text-xs font-medium transition-colors",
                 isActive 
-                  ? "text-blue-600" 
+                  ? "text-black" 
                   : "text-gray-500 hover:text-gray-700"
               )}
             >
               {item.isLogo ? (
                 <DropdownMenu onOpenChange={(open) => { if (open) refreshOrgs() }}>
                   <DropdownMenuTrigger className="flex flex-col items-center outline-none">
-                    <IconComponent className="h-12 w-auto" />
+                    <IconComponent className={`h-12 w-auto ${isActive ? '' : 'opacity-30 grayscale'}`} />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" align="center">
                     {orgs.length > 0 && orgs.map((o) => (

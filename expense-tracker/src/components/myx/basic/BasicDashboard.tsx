@@ -39,7 +39,7 @@ export default function BasicDashboard({ orgName }: BasicDashboardProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 h-screen overflow-hidden flex flex-col">
       {/* Bank update placeholder just above toggle */}
       <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 96 }}>
         Update bank data: {formatLastUpdateText(lastBankUpdate)}
@@ -61,7 +61,7 @@ export default function BasicDashboard({ orgName }: BasicDashboardProps) {
       </div>
 
       {/* Header with org name centered and Add Expense on right */}
-      <div className="sticky top-0 z-30 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
+      <div className="flex-shrink-0 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
         <div className="col-span-3 flex justify-center">
           <h1 className="text-2xl font-bold text-gray-900 text-center truncate max-w-full">{orgName}</h1>
         </div>
@@ -72,46 +72,49 @@ export default function BasicDashboard({ orgName }: BasicDashboardProps) {
         </div>
       </div>
 
-      {/* Top Row: 4 Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        {/* Available to Spend (Hero) - First position */}
-        <AvailableToSpendHero value={data.available.value} />
-        
-        <ContextCard
-          title="Income"
-          type="income"
-          data={{
-            value: data.income.value,
-            nextHorizon: data.income.nextHorizon,
-            trendPct: data.income.trendPct,
-            status: data.income.status
-          }}
-        />
-        <ContextCard
-          title="Committed"
-          type="committed"
-          data={{
-            actual: data.committed.actual,
-            planned: data.committed.planned,
-            trendPct: data.committed.trendPct,
-            status: data.committed.status
-          }}
-        />
-        <ContextCard
-          title="Goals"
-          type="goals"
-          data={{
-            actual: data.goals.actual,
-            target: data.goals.target,
-            trendPct: data.goals.trendPct,
-            status: data.goals.status
-          }}
-        />
-      </div>
+      {/* Content area that fits in remaining viewport */}
+      <div className="flex-1 flex flex-col min-h-0 pb-32">
+        {/* Top Row: 4 Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          {/* Available to Spend (Hero) - First position */}
+          <AvailableToSpendHero value={data.available.value} />
+          
+          <ContextCard
+            title="Income"
+            type="income"
+            data={{
+              value: data.income.value,
+              nextHorizon: data.income.nextHorizon,
+              trendPct: data.income.trendPct,
+              status: data.income.status
+            }}
+          />
+          <ContextCard
+            title="Committed"
+            type="committed"
+            data={{
+              actual: data.committed.actual,
+              planned: data.committed.planned,
+              trendPct: data.committed.trendPct,
+              status: data.committed.status
+            }}
+          />
+          <ContextCard
+            title="Goals"
+            type="goals"
+            data={{
+              actual: data.goals.actual,
+              target: data.goals.target,
+              trendPct: data.goals.trendPct,
+              status: data.goals.status
+            }}
+          />
+        </div>
 
-      {/* Bottom Row: Activity Feed (full width) */}
-      <div className="mb-8">
-        <ActivityFeedCard items={data.activity} />
+        {/* Bottom Row: Activity Feed (full width) */}
+        <div className="flex-1 min-h-0">
+          <ActivityFeedCard items={data.activity} />
+        </div>
       </div>
     </div>
   )

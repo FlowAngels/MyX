@@ -196,7 +196,7 @@ export default function DashboardContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 h-screen overflow-hidden flex flex-col">
       {/* Bank update placeholder just above toggle */}
       <div className="fixed left-1/2 -translate-x-1/2 z-40 text-xs text-gray-500 bg-gray-50/90 px-2 py-0.5 rounded" style={{ bottom: 96 }}>
         Update bank data: {formatLastUpdateText(lastBankUpdate)}
@@ -216,7 +216,7 @@ export default function DashboardContent() {
         </div>
       </div>
       {/* Sticky header with active MyBiz centered in 75% and Add Expense on right */}
-      <div className="sticky top-0 z-30 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
+      <div className="flex-shrink-0 bg-gray-50 border-b border-gray-100 py-2 mb-4 grid grid-cols-4 items-center">
         <div className="col-span-3 flex justify-center">
           <h1 className="text-2xl font-bold text-gray-900 text-center truncate max-w-full">{organization?.name ?? 'MyX'}</h1>
         </div>
@@ -226,11 +226,10 @@ export default function DashboardContent() {
           </Link>
         </div>
       </div>
-      {/* (Removed old bank placeholder) */}
-      {/* (Removed previous KPI cards) */}
-
-      {/* Profit First Dashboard */}
-      <div className="mb-8">
+      {/* Content area that fits in remaining viewport */}
+      <div className="flex-1 flex flex-col min-h-0 pb-32">
+        {/* Profit First Dashboard */}
+        <div className="flex-1">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           {/* Top Row - Delighter Job */}
           {[
@@ -309,6 +308,7 @@ export default function DashboardContent() {
               </CardContent>
             </Card>
           ))}
+        </div>
         </div>
       </div>
 

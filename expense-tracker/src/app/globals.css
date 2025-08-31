@@ -118,5 +118,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Dashboards should not scroll - everything fits in viewport */
+    overflow: hidden;
+    height: 100vh;
+  }
+  html {
+    height: 100%;
   }
 }
