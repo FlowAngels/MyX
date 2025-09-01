@@ -48,13 +48,46 @@ const ShareIcon = ({ className }: { className?: string }) => (
 
 type Period = 'day' | 'week' | 'month' | 'quarter' | 'year'
 
+// Placeholder GST/Tax due date logic
+function getNextFilingLabel({ gstDue, taxDue, today }: { gstDue: Date, taxDue: Date, today: Date }) {
+  const gstDiff = Math.ceil((gstDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const taxDiff = Math.ceil((taxDue.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  
+  const nextGstDue = gstDiff >= 0 ? gstDiff : Infinity
+  const nextTaxDue = taxDiff >= 0 ? taxDiff : Infinity
+  
+  let daysUntilNext: number
+  let label: string
+  
+  if (nextGstDue < nextTaxDue) {
+    daysUntilNext = nextGstDue
+    label = 'before GST report is due'
+  } else if (nextTaxDue < nextGstDue) {
+    daysUntilNext = nextTaxDue
+    label = 'before Tax report is due'
+  } else {
+    daysUntilNext = nextGstDue
+    label = 'before GST & Tax reports are due'
+  }
+  
+  return { daysUntilNext, label }
+}
+
 export default function BooksDashboard() {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [period, setPeriod] = useState<Period>('month')
   const [loading, setLoading] = useState(true)
   
-  // Mock compliance state - will be driven by real data later
-  const [daysLeft] = useState(15)
+  // Placeholder due dates - will be driven by org configuration later
+  const today = new Date()
+  const gstDueDate = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000) // 15 days from now
+  const taxDueDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+  
+  const { daysUntilNext, label: nextFilingLabel } = getNextFilingLabel({
+    gstDue: gstDueDate,
+    taxDue: taxDueDate,
+    today
+  })
   
   // Temporary compliance selectors with TODOs
   // TODO(wire): Replace with useFeedsHealthForActiveBiz()
@@ -133,36 +166,8 @@ export default function BooksDashboard() {
         </div>
       </div>
 
-      {/* Hero Layer - Top Row (2 cards) */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        {/* Card 1: Cycle Timer → Share */}
-        <Card className="p-3">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-semibold tracking-wide text-center">
-              {isCompliant ? 'SHARE PACKAGE' : 'GST FILING'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-xl font-bold text-gray-600">
-                {isCompliant ? 'Ready' : `${daysLeft} days`}
-              </div>
-              <div className="flex flex-col items-center gap-0.5 h-11">
-                <div className="w-5 h-5" />
-                {isCompliant ? (
-                  <ShareIcon className="w-5 h-5 text-green-600" />
-                ) : (
-                  <ClockIcon className="w-5 h-5 text-orange-500" />
-                )}
-              </div>
-            </div>
-            <div className="mt-0.5 text-[11px] leading-4 text-gray-400">
-              {isCompliant ? 'PDF + CSV export ready' : 'Until deadline'}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Compliance Status */}
+      {/* Top Row - Compliance (Full Width) */}
+      <div className="mb-4">
         <Card className="p-3">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold tracking-wide text-center">COMPLIANCE</CardTitle>
@@ -171,7 +176,7 @@ export default function BooksDashboard() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="space-y-1">
-                  {/* 3-item checklist */}
+                  {/* 3-item checklist - ✅ first, then issues */}
                   <div className="flex items-center gap-2 text-sm">
                     {feedsUpToDate ? (
                       <CheckCircleIcon className="w-4 h-4 text-green-600 flex-shrink-0" />
@@ -211,9 +216,30 @@ export default function BooksDashboard() {
         </Card>
       </div>
 
-      {/* Gauge Layer - Second Row (5 cards) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
-        {/* Card 3: Bank & Reconciliation Health */}
+      {/* Row 1: Next Filing, Bank Health */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Next Filing (was GST Filing) */}
+        <Card className="p-3">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-semibold tracking-wide text-center">NEXT FILING</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="text-xl font-bold text-gray-600">
+                {daysUntilNext} days
+              </div>
+              <div className="flex flex-col items-center gap-0.5 h-11">
+                <div className="w-5 h-5" />
+                <ClockIcon className="w-5 h-5 text-orange-500" />
+              </div>
+            </div>
+            <div className="mt-0.5 text-[11px] leading-4 text-gray-400">
+              {nextFilingLabel}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bank Health */}
         <Card className="p-3">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold tracking-wide text-center">BANK HEALTH</CardTitle>
@@ -229,8 +255,11 @@ export default function BooksDashboard() {
             <div className="mt-0.5 text-[11px] leading-4 text-gray-400">5 unreconciled</div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Card 4: Ledger Balance Check */}
+      {/* Row 2: Balance, Deductibles */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Balance */}
         <Card className="p-3">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold tracking-wide text-center">BALANCE</CardTitle>
@@ -247,7 +276,7 @@ export default function BooksDashboard() {
           </CardContent>
         </Card>
 
-        {/* Card 5: Deductibles Split */}
+        {/* Deductibles */}
         <Card className="p-3">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold tracking-wide text-center">DEDUCTIBLES</CardTitle>
@@ -263,8 +292,11 @@ export default function BooksDashboard() {
             <div className="mt-0.5 text-[11px] leading-4 text-gray-400">87% deductible</div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Card 6: GST Position */}
+      {/* Row 3: GST, Tax Provision */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* GST */}
         <Card className="p-3">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold tracking-wide text-center">GST</CardTitle>
@@ -281,7 +313,7 @@ export default function BooksDashboard() {
           </CardContent>
         </Card>
 
-        {/* Card 7: Tax Provision */}
+        {/* Tax Provision */}
         <Card className="p-3">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold tracking-wide text-center">TAX PROVISION</CardTitle>
