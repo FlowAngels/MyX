@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import BottomNav from "@/components/ui/bottom-nav";
-import BootSplash from "@/components/BootSplash";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +29,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased pb-16`}
       >
-        <BootSplash minMs={2000} />
-        {children}
-        <BottomNav />
-        <Toaster />
+        <BootSplash minMs={2000}>
+          {children}
+          <BottomNav />
+          <Toaster />
+          {/* SSR-stable portal target for splash overlay */}
+          <div id="bootsplash-root" />
+        </BootSplash>
       </body>
     </html>
   );
